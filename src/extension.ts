@@ -2,8 +2,12 @@
 import { renderPrompt } from '@vscode/prompt-tsx';
 import * as vscode      from 'vscode';
 import { workspace }    from 'vscode';
+import * as fs from 'fs';
+
 
 import { PlayPrompt }   from './play';
+import { CmdHelper } from './helpers/cmd.helper';
+import { MODEL_SELECTOR } from './consts/model.const';
 
 const CAT_NAMES_COMMAND_ID = 'ai.styleInEditor';
 const CAT_PARTICIPANT_ID = 'style-copilot.ai';
@@ -13,9 +17,6 @@ interface ICatChatResult extends vscode.ChatResult {
     command: string;
   }
 }
-
-// Use gpt-4o since it is fast and high quality. gpt-3.5-turbo and gpt-4 are also available.
-const MODEL_SELECTOR: vscode.LanguageModelChatSelector = { vendor: 'copilot', family: 'gpt-4o' };
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -139,97 +140,13 @@ export function activate(context: vscode.ExtensionContext) {
   }));
 
   // NOTE Register a generic command
-  const commandId = 'ai.styleInEditor';
-  context.subscriptions.push(cat, vscode.commands.registerTextEditorCommand(commandId, async (textEditor : vscode.TextEditor) =>
-  {
-    // NOTE Get Preferences > Settings
-    const extConfig = workspace.getConfiguration('style-copilot');
-    const commands : { id : string, description : string, prompt : string }[] = extConfig.ai.customCommands;
-
-    // NOTE Commands not found
-    if (!commands || commands.length === 0)
+  context.subscriptions.push(cat,
+    vscode.commands.registerTextEditorCommand(CmdHelper.genericCmdId, async (editor) =>
     {
-      vscode.window.showInformationMessage('No custom commands defined.');
-      return;
-    }
+      CmdHelper.runGenericCommand(editor);
+    })
+  );
 
-    // NOTE Ask user to pick a command
-    const picked = await vscode.window.showQuickPick(commands.map(c => c.id), {
-      placeHolder : 'Select a custom command'
-    });
-    const find = commands.find(c => c.id === picked);
-
-    // NOTE Command not found
-    if (!find)
-    {
-      vscode.window.showInformationMessage('No custom command found.');
-      return;
-    }
-
-    const text = textEditor.document.getText();
-    let chatResponse : vscode.LanguageModelChatResponse | undefined;
-    try
-    {
-      const [model] = await vscode.lm.selectChatModels(MODEL_SELECTOR);
-      if (!model)
-      {
-        console.log('Model not found. Please make sure the GitHub Copilot Chat extension is installed and enabled.');
-        return;
-      }
-
-      // NOTE Insert the custom prompt and the user file into the model
-      const messages = [
-        vscode.LanguageModelChatMessage.User(find.prompt),
-        vscode.LanguageModelChatMessage.User(text)
-      ];
-      chatResponse = await model.sendRequest(messages, {}, new vscode.CancellationTokenSource().token);
-    }
-    catch (err)
-    {
-      if (err instanceof vscode.LanguageModelError)
-        console.log(err.message, err.code, err.cause);
-      else
-        throw err;
-      return;
-    }
-
-    // NOTE Clear the editor content before inserting new content
-    await textEditor.edit(edit =>
-    {
-      const start = new vscode.Position(0, 0);
-      const end   = new vscode.Position(textEditor.document.lineCount - 1, textEditor.document.lineAt(textEditor.document.lineCount - 1).text.length);
-      edit.delete(new vscode.Range(start, end));
-    });
-
-    // NOTE Stream the code into the editor as it is coming in from the Language Model
-    try
-    {
-      // NOTE Build response
-      const fragments : string[] = [];
-      for await (const fragment of chatResponse.text)
-        fragments.push(fragment);
-      const result = fragments.join('');
-
-      // NOTE Insert the response into the editor
-      await textEditor.edit(edit =>
-      {
-        const lastLine = textEditor.document.lineAt(textEditor.document.lineCount - 1);
-        const position = new vscode.Position(lastLine.lineNumber, lastLine.text.length);
-        edit.insert(position, result);
-      });
-    }
-    catch (err)
-    {
-      // NOTE Async response stream may fail, e.g network interruption or server side error
-      await textEditor.edit(edit =>
-      {
-        const lastLine = textEditor.document.lineAt(textEditor.document.lineCount - 1);
-        const position = new vscode.Position(lastLine.lineNumber, lastLine.text.length);
-        edit.insert(position, (<Error>err).message);
-      });
-    }
-
-  }));
 }
 
 function handleError(logger: vscode.TelemetryLogger, err: any, stream: vscode.ChatResponseStream): void {
