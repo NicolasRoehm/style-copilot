@@ -9,7 +9,7 @@ import { CustomAction }   from '../types/cmd.type';
 
 export class ActionHelper
 {
-  public static async runAnalyzeAction(act : CustomAction, req : vscode.ChatRequest, stream : vscode.ChatResponseStream, token : vscode.CancellationToken, logger : vscode.TelemetryLogger) : Promise<void>
+  public static async runAction(act : CustomAction, req : vscode.ChatRequest, stream : vscode.ChatResponseStream, token : vscode.CancellationToken) : Promise<void>
   {
     stream.progress(act.loadingLabel || 'Loading...');
 
@@ -45,26 +45,7 @@ export class ActionHelper
     }
     catch (err)
     {
-      ActionHelper.handleError(logger, err, stream);
-    }
-  }
-
-  public static handleError(logger : vscode.TelemetryLogger, err : any, stream : vscode.ChatResponseStream) : void
-  {
-    // making the chat request might fail because
-    // - model does not exist
-    // - user consent not given
-    // - quote limits exceeded
-    logger.logError(err);
-  
-    if (err instanceof vscode.LanguageModelError) {
-      console.log(err.message, err.code, err.cause);
-      if (err.cause instanceof Error && err.cause.message.includes('off_topic')) {
-        stream.markdown(vscode.l10n.t('I\'m sorry, I can only explain computer science concepts.'));
-      }
-    } else {
-      // re-throw other errors so they show up in the UI
-      throw err;
+      console.error('ActionHelper : runAction -> error', err);
     }
   }
 }

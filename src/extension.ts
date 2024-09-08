@@ -24,8 +24,7 @@ export function activate(context : vscode.ExtensionContext)
     if (!action)
       return {};
 
-    await ActionHelper.runAnalyzeAction(action, request, stream, token, logger);
-    logger.logUsage('request', { kind : '' });
+    await ActionHelper.runAction(action, request, stream, token);
     return {};
   };
 
@@ -46,28 +45,6 @@ export function activate(context : vscode.ExtensionContext)
       return ups;
     }
   };
-
-  const logger = vscode.env.createTelemetryLogger({
-    sendEventData(eventName, data) {
-      // NOTE Capture event telemetry
-      console.log(`Event: ${eventName}`);
-      console.log(`Data: ${JSON.stringify(data)}`);
-    },
-    sendErrorData(error, data) {
-      // NOTE Capture error telemetry
-      console.error(`Error: ${error}`);
-      console.error(`Data: ${JSON.stringify(data)}`);
-    }
-  });
-
-  context.subscriptions.push(at.onDidReceiveFeedback((feedback: vscode.ChatResultFeedback) =>
-  {
-    // Log chat result feedback to be able to compute the success matric of the participant
-    // unhelpful / totalRequests is a good success metric
-    logger.logUsage('chatResultFeedback', {
-      kind: feedback.kind
-    });
-  }));
 
   // NOTE Register a generic command
   context.subscriptions.push(at,
