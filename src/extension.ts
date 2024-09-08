@@ -31,7 +31,7 @@ export function activate(context : vscode.ExtensionContext)
 
   // NOTE Create the custom @StyleCopilot AI chat participant
   const at    = vscode.chat.createChatParticipant('style-copilot.ai', handler);
-  at.iconPath = vscode.Uri.joinPath(context.extensionUri, 'cat.jpeg');
+  at.iconPath = vscode.Uri.joinPath(context.extensionUri, 'style.png');
   at.followupProvider = {
     provideFollowups(result, context, token)
     {
