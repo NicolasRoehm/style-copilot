@@ -8,6 +8,7 @@ import * as fs from 'fs';
 import { PlayPrompt }   from './play';
 import { CmdHelper } from './helpers/cmd.helper';
 import { MODEL_SELECTOR } from './consts/model.const';
+import { ActionHelper } from './helpers/action.helper';
 
 const CAT_NAMES_COMMAND_ID = 'ai.styleInEditor';
 const CAT_PARTICIPANT_ID = 'style-copilot.ai';
@@ -43,7 +44,7 @@ export function activate(context: vscode.ExtensionContext) {
           }
         }
       } catch (err) {
-        handleError(logger, err, stream);
+        ActionHelper.handleError(logger, err, stream);
       }
 
       stream.button({
@@ -53,29 +54,14 @@ export function activate(context: vscode.ExtensionContext) {
 
       logger.logUsage('request', { kind: 'randomTeach' });
       return { metadata: { command: 'randomTeach' } };
-    } else if (request.command === 'play') {
-      stream.progress('Throwing away the computer science books and preparing to play with some Python code...');
-      try {
-        const [model] = await vscode.lm.selectChatModels(MODEL_SELECTOR);
-        if (model) {
-          // Here's an example of how to use the prompt-tsx library to build a prompt
-          const { messages } = await renderPrompt(
-            PlayPrompt,
-            { userQuery: request.prompt },
-            { modelMaxPromptTokens: model.maxInputTokens },
-            model);
+    }
+    
+    else if (request.command === 'analyze')
+    {
+      await ActionHelper.runAnalyzeAction(request, stream, token, logger);
+      logger.logUsage('request', { kind: 'analyze' });
+      return { metadata: { command: 'analyze' } };
 
-          const chatResponse = await model.sendRequest(messages, {}, token);
-          for await (const fragment of chatResponse.text) {
-            stream.markdown(fragment);
-          }
-        }
-      } catch (err) {
-        handleError(logger, err, stream);
-      }
-
-      logger.logUsage('request', { kind: 'play' });
-      return { metadata: { command: 'play' } };
     } else {
       try {
         const [model] = await vscode.lm.selectChatModels(MODEL_SELECTOR);
@@ -95,7 +81,7 @@ export function activate(context: vscode.ExtensionContext) {
           }
         }
       } catch (err) {
-        handleError(logger, err, stream);
+        ActionHelper.handleError(logger, err, stream);
       }
 
       logger.logUsage('request', { kind: '' });
@@ -111,9 +97,9 @@ export function activate(context: vscode.ExtensionContext) {
   cat.followupProvider = {
     provideFollowups(result: ICatChatResult, context: vscode.ChatContext, token: vscode.CancellationToken) {
       return [{
-        prompt: 'let us play',
-        label: vscode.l10n.t('Play with the cat'),
-        command: 'play'
+        prompt: '',
+        label: vscode.l10n.t('Analyze the file'),
+        command: 'analyze'
       } satisfies vscode.ChatFollowup];
     }
   };
@@ -147,24 +133,6 @@ export function activate(context: vscode.ExtensionContext) {
     })
   );
 
-}
-
-function handleError(logger: vscode.TelemetryLogger, err: any, stream: vscode.ChatResponseStream): void {
-  // making the chat request might fail because
-  // - model does not exist
-  // - user consent not given
-  // - quote limits exceeded
-  logger.logError(err);
-
-  if (err instanceof vscode.LanguageModelError) {
-    console.log(err.message, err.code, err.cause);
-    if (err.cause instanceof Error && err.cause.message.includes('off_topic')) {
-      stream.markdown(vscode.l10n.t('I\'m sorry, I can only explain computer science concepts.'));
-    }
-  } else {
-    // re-throw other errors so they show up in the UI
-    throw err;
-  }
 }
 
 // Get a random topic that the cat has not taught in the chat history yet

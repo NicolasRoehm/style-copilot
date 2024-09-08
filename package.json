@@ -59,18 +59,8 @@
             "description": "Pick at random a computer science concept then explain it in purfect way of a cat"
           },
           {
-            "name": "play",
-            "description": "Do whatever you want, you are a cat after all",
-            "disambiguation": [
-              {
-                "categoryName": "cat_play",
-                "description": "The user just wants to relax and see the cat play.",
-                "examples": [
-                  "Enough learning, let the cat play with a ball of yarn",
-                  "Can you show me a cat playing with a laser pointer?"
-                ]
-              }
-            ]
+            "name": "analyze",
+            "description": "Analyze the code and provide feedback on the style and clarity"
           }
         ],
         "disambiguation": [
