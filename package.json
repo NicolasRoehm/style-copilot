@@ -21,6 +21,34 @@
       "title": "style-copilot",
       "type": "object",
       "properties": {
+        "style-copilot.ai.customActions": {
+          "description": "Define custom actions",
+          "scope": "window",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "A custom action for Copilot",
+            "properties": {
+              "label": {
+                "type": "string",
+                "description": "Label for the action"
+              },
+              "id": {
+                "type": "string",
+                "description": "Unique identifier for the action"
+              },
+              "prompt": {
+                "type": "string",
+                "description": "Prompt"
+              },
+              "loadingLabel": {
+                "type": "string",
+                "description": "Label to show while the action is loading",
+                "required": false
+              }
+            }
+          }
+        },
         "style-copilot.ai.customCommands": {
           "description": "Define custom commands",
           "scope": "window",
@@ -49,31 +77,12 @@
     "chatParticipants": [
       {
         "id": "style-copilot.ai",
-        "fullName": "Cat",
-        "name": "cat",
-        "description": "Meow! What can I teach you?",
+        "fullName": "StyleCopilot",
+        "name": "StyleCopilot",
+        "description": "Style Copilot helps you execute custom commands and actions in the VSCode editor.",
         "isSticky": true,
-        "commands": [
-          {
-            "name": "randomTeach",
-            "description": "Pick at random a computer science concept then explain it in purfect way of a cat"
-          },
-          {
-            "name": "analyze",
-            "description": "Analyze the code and provide feedback on the style and clarity"
-          }
-        ],
-        "disambiguation": [
-          {
-            "categoryName": "cat",
-            "description": "The user wants to learn a specific computer science topic in an informal way.",
-            "examples": [
-              "Teach me C++ pointers using metaphors",
-              "Explain to me what is a linked list in a simple way",
-              "Can you explain to me what is a function in programming?"
-            ]
-          }
-        ]
+        "commands": [],
+        "disambiguation": []
       }
     ],
     "commands": [

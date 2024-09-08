@@ -4,3 +4,11 @@ export type CustomCmd =
   description : string;
   prompt      : string;
 };
+
+export type CustomAction =
+{
+  id            : string;
+  label         : string;
+  prompt        : string;
+  loadingLabel ?: string;
+}

@@ -4,11 +4,14 @@ import * as vscode        from 'vscode';
 // Constants
 import { MODEL_SELECTOR } from '../consts/model.const';
 
+// Types
+import { CustomAction }   from '../types/cmd.type';
+
 export class ActionHelper
 {
-  public static async runAnalyzeAction(req : vscode.ChatRequest, stream : vscode.ChatResponseStream, token : vscode.CancellationToken, logger : vscode.TelemetryLogger) : Promise<void>
+  public static async runAnalyzeAction(act : CustomAction, req : vscode.ChatRequest, stream : vscode.ChatResponseStream, token : vscode.CancellationToken, logger : vscode.TelemetryLogger) : Promise<void>
   {
-    stream.progress('Analyzing the file...');
+    stream.progress(act.loadingLabel || 'Loading...');
 
     try
     {
@@ -19,16 +22,8 @@ export class ActionHelper
         return;
       }
 
-      const analyzePrompt = `
-      `;
-      // const analyzePrompt = `
-      //   Analyze the following code and respond with a table containing the following information:
-      //   - Unused variables (count)
-      //   - Unused functions (count)
-      //   - Count of variables that should be const instead of let
-      //   - Count of functions that should be private instead of public`;
-      
-      const messages = [ vscode.LanguageModelChatMessage.User(analyzePrompt) ];
+      const prompt   = act.prompt.replace(`/${act.id} `, '');
+      const messages = [ vscode.LanguageModelChatMessage.User(prompt) ];
       
       // NOTE Add active tab content
       const text = vscode.window.activeTextEditor?.document.getText() || '';
