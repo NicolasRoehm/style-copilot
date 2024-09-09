@@ -1,26 +1,58 @@
-# Chat Example
+# Style Copilot [GitHub Copilot Extension]
 
-Visual Studio Code's Copilot Chat architecture enables extension authors to integrate with the GitHub Copilot Chat experience. A chat extension is a VS Code extension that uses the Chat extension API by contributing a Chat participant. Chat participants are domain experts that can answer user queries within a specific domain.
+The Style Copilot is a powerful GitHub Copilot Extension for creating snippets that can be triggered on files to execute predefined messages, based on your VSCode preferences.
 
-The Language Model API enables you to use the Language Model and integrate AI-powered features and natural language processing in your Visual Studio Code extension.
+<p align="center"><img width="100" src="style.png" alt="Sytle Copilot logo"></a></p>
 
-When an extension uses the Chat or the Language Model API, we call it a GitHub Copilot Extension, since GitHub Copilot is the provider of the Chat and the Language Model experience.
+## VSCode commands
+**F1 > StyleCopilot: Execute custom command > [command.id]**
 
-This GitHub Copilot Extension sample shows:
+With Style Copilot, you can execute your own VSCode command that will modify the active file and provide a diff view, allowing you to review, ✅ accept or ❌ discard the changes.
 
-- How to contribute a chat participant to the GitHub Copilot Chat view.
-- How to use the Language Model API to request access to the Language Model (gpt-4o, gpt-3.5-turbo, gpt-4).
+To create a VSCode command, navigate to Preferences > Settings and provide it in JSON format, for example:
 
-![demo](./demo.png)
+```json
+"style-copilot.ai.customCommands": [
+  {
+    "id": "comment.block",
+    "description": "Add comment blocks into component.ts",
+    "prompt": "Add the following comment blocks at the root of the class and keep them in the exact same order : 'Init', 'Actions', 'Computed props', 'Helpers', 'Requests', 'Subscriptions'.\n Analyze the source code and move the functions under the dedicated comment block.\n Comment block template :\n // -------------------------------------------------------------------------------\n // NOTE BlockName ----------------------------------------------------------------\n // -------------------------------------------------------------------------------\n IMPORTANT respond just with code. Do not use markdown!",
+  }
+],
+```
 
-Documentation can be found here:
-- https://code.visualstudio.com/api/extension-guides/chat
-- https://code.visualstudio.com/api/extension-guides/language-model
+<p align="center"><img src="./demo-loading.png" height="18"></p>
 
-## Running the Sample
+<p align="center" style="font-style:italic">A loading indicator is displayed at the bottom of the IDE during the generation of the response.</p>
 
-- Run `npm install` in terminal to install dependencies
-- Run the `Run Extension` target in the Debug View. This will:
-	- Start a task `npm: watch` to compile the code
-	- Run the extension in a new VS Code window
-	- You will see the @cat chat participant show in the GitHub Copilot Chat view
+![Demo custom command](./demo-cmd.png)
+
+## Chat actions
+
+**Chat > @StyleCopilot > /action-id**
+
+During your conversation with the GitHub Copilot AI, you can enable this assistant by mentioning [@StyleCopilot](#) and including or clicking on the previously defined [/action-id](#) in your VSCode settings, to quickly send a message!
+
+Here is a JSON example to add an action to your Chat in your Preferences > Settings:
+
+```json
+"style-copilot.ai.customActions": [
+  {
+    "id": "analyze-sanity",
+    "description": "Analyze the sanity of a component.ts",
+    "label": "Analyze code sanity",
+    "loadingLabel": "Analyzing...",
+    "prompt": "Analyze the following code and respond with a table containing the following information:\n- Unused variables (count)\n- Unused functions (count)\n- Count of variables that should be const instead of let\n- Count of functions that should be private instead of public"
+  }
+],
+```
+
+<p align="center"><img src="demo-chat.png" alt="Chat demo"></a></p>
+
+## Project settings
+
+Style Copilot is using the gpt-4o Language Model, as you can see in [model.const.ts](./consts/model.const.ts).
+
+## Credits
+
+* VSCode extension samples - [microsoft/vscode-extension-samples/chat-sample](https://github.com/microsoft/vscode-extension-samples/tree/main/chat-sample)

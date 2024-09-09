@@ -1,13 +1,14 @@
 {
   "name": "style-copilot",
-  "publisher": "nicolas-roehm",
+  "publisher": "NicolasRoehm",
   "displayName": "Style Code Assistant",
-  "description": "Enhance your coding with Style Copilot, ensuring consistent style adherence and code clarity directly in VSCode.",
+  "description": "Style Copilot helps you execute custom Github Copilot commands and actions in the VSCode editor.",
+  "icon": "style.png",
   "repository": {
     "type": "git",
     "url": "https://github.com/NicolasRoehm/style-copilot"
   },
-  "version": "0.1.0",
+  "version": "1.0.0",
   "engines": {
     "vscode": "^1.92.0"
   },
@@ -27,7 +28,7 @@
           "type": "array",
           "items": {
             "type": "object",
-            "title": "A custom action for Copilot",
+            "title": "A custom action for Github Copilot",
             "properties": {
               "label": {
                 "type": "string",
@@ -50,12 +51,12 @@
           }
         },
         "style-copilot.ai.customCommands": {
-          "description": "Define custom commands",
+          "description": "Define custom Github Copilot commands",
           "scope": "window",
           "type": "array",
           "items": {
             "type": "object",
-            "title": "A custom command for Copilot",
+            "title": "A custom Github Copilot command",
             "properties": {
               "description": {
                 "type": "string",
@@ -79,7 +80,7 @@
         "id": "style-copilot.ai",
         "fullName": "StyleCopilot",
         "name": "StyleCopilot",
-        "description": "Style Copilot helps you execute custom commands and actions in the VSCode editor.",
+        "description": "Style Copilot helps you execute custom Github Copilot commands and actions in the VSCode editor.",
         "isSticky": true,
         "commands": [],
         "disambiguation": []
@@ -88,7 +89,7 @@
     "commands": [
       {
         "command": "ai.styleInEditor",
-        "title": "Execute custom Style Copilot command in the editor"
+        "title": "StyleCopilot: Execute custom command"
       }
     ]
   },
