@@ -51,7 +51,7 @@ Here is a JSON example to add an action to your Chat in your Preferences > Setti
 
 ## Project settings
 
-Style Copilot is using the gpt-4o Language Model, as you can see in [model.const.ts](./consts/model.const.ts).
+Style Copilot is using the gpt-4o Language Model, as you can see in [model.const.ts](./src/consts/model.const.ts).
 
 ## Credits
 
